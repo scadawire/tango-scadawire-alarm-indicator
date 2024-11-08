@@ -7,6 +7,7 @@ import os
 import json
 from json import JSONDecodeError
 import random
+from threading import Thread
 
 class AlarmIndicator(Device, metaclass=DeviceMeta):
     pass
@@ -18,6 +19,7 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
     target_attributes_always = device_property(dtype=str, default_value="")
     target_attribute_on_value = device_property(dtype=str, default_value="1")
     target_attribute_off_value = device_property(dtype=str, default_value="0")
+    target_state_sync_refresh_ms = device_property(dtype=int, default_value=0)
     
     device = 0
     targetAttributes = {}
@@ -99,7 +101,13 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
                 name = attributeName.strip()
                 if(name == ""): continue
                 self.device.write_attribute(name, qualityTargetValue[quality])
-        
+    
+    @command()
+    def refreshLoop(self):
+        while(1):
+            self.handleAlarmState()
+            time.sleep(0.001 * self.target_state_sync_refresh_ms)
+            
     def init_device(self):
         self.set_state(DevState.INIT)
         self.get_device_properties(self.get_device_class())
@@ -109,6 +117,8 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
         self.targetAttributes["valid"] = self.target_attributes_valid.split(";")
         self.targetAttributes["always"] = self.target_attributes_always.split(";")
         self.set_state(DevState.ON)
+        if(self.target_state_sync_refresh_ms > 0):
+            Thread(target=self.refreshLoop).start()
         self.handleAlarmState()
 
 if __name__ == "__main__":
