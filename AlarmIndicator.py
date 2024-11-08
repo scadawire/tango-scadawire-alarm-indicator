@@ -59,6 +59,7 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
         print("handling alarm change")
         print("received payload:")
         print(payload)
+        # sample ['202255', 'warning', 'changing', '200842', 'demo001/silo_1/fill_amount', '20035', 'demo001_silo_1']
         alarmId = payload[0]
         quality = payload[1]
         previous_quality = payload[2]
@@ -66,9 +67,9 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
         attribute_name = payload[4]
         device_id = payload[5]
         device_name = payload[6]
-        alarmLookup[attribute_id] = quality
+        self.alarmLookup[attribute_id] = quality
         print("new alarmLookup:")
-        print(alarmLookup)
+        print(self.alarmLookup)
         self.handleAlarmState()
         
     def mostCriticalQuality(self):
@@ -83,6 +84,7 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
     
     def handleAlarmState(self):
         quality = self.mostCriticalQuality()
+        print("most critical quality is: " + quality)
         qualityTargetValue = {}
         qualityTargetValue["always"] = self.target_attribute_on_value
         qualityTargetValue["alarm"] = self.target_attribute_off_value
