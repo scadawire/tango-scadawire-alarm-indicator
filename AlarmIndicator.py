@@ -90,9 +90,9 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
         if(quality == "warning"): qualityTargetValue["warning"] = self.target_attribute_on_value
         qualityTargetValue["valid"] = self.target_attribute_off_value
         if(quality == "valid"): qualityTargetValue["valid"] = self.target_attribute_on_value
-        for(quality in qualityTargetValue):
+        for quality in qualityTargetValue:
             targetAttributes = self.targetAttributes[quality]
-            for(attributeName in targetAttributes):
+            for attributeName in targetAttributes:
                 self.device.write_attribute(attributeName, qualityTargetValue[quality])
         
     def init_device(self):
