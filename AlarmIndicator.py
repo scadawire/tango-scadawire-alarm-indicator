@@ -15,6 +15,7 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
     target_attributes_alarm = device_property(dtype=str, default_value="")
     target_attributes_warning = device_property(dtype=str, default_value="")
     target_attributes_valid = device_property(dtype=str, default_value="")
+    target_attributes_always = device_property(dtype=str, default_value="")
     target_attribute_on_value = device_property(dtype=str, default_value="1")
     target_attribute_off_value = device_property(dtype=str, default_value="0")
     
@@ -93,7 +94,9 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
         for quality in qualityTargetValue:
             targetAttributes = self.targetAttributes[quality]
             for attributeName in targetAttributes:
-                self.device.write_attribute(attributeName, qualityTargetValue[quality])
+                name = attributeName.strip()
+                if(name == ""): continue
+                self.device.write_attribute(name, qualityTargetValue[quality])
         
     def init_device(self):
         self.set_state(DevState.INIT)
