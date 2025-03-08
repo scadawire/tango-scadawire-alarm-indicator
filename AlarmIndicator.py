@@ -20,7 +20,9 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
     target_attribute_on_value = device_property(dtype=str, default_value="1")
     target_attribute_off_value = device_property(dtype=str, default_value="0")
     target_state_sync_refresh_ms = device_property(dtype=int, default_value=0)
-    
+
+    current_level = attribute(dtype=str, access=AttrWriteType.READ, unit="#")
+
     device = 0
     targetAttributes = {}
     alarmLookup = {}
@@ -39,6 +41,10 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
     def demo_alarm(self):
         self.alarmLookup["demo"] = "alarm"
         self.handleAlarmState()
+
+    def read_current_level(self):
+        current_level = self.mostCriticalQuality()
+        return current_level, time.time(), AttrQuality.ATTR_VALID
     
     #@command()
     #def disco(self):
@@ -100,7 +106,10 @@ class AlarmIndicator(Device, metaclass=DeviceMeta):
             for attributeName in targetAttributes:
                 name = attributeName.strip()
                 if(name == ""): continue
-                self.device.write_attribute(name, qualityTargetValue[quality])
+                try:
+                    self.device.write_attribute(name, qualityTargetValue[quality])
+                except Exception as e:
+                    print("cannot write device quality value: " + str(e))
     
     @command()
     def refreshLoop(self):
